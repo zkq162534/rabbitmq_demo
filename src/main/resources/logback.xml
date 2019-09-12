@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <!-- 上下文名称用于区分不同程序的日志记录 -->
+    <contextName>rabbitmq_demo</contextName>
+
+    <!-- 写入文件的日志格式 -->
+    <property name="LOG_PATTERN"
+              value="%date{yyyy-MM-dd HH:mm:ss} |%-5level |%thread |%file:%line |%logger |%msg%n"/>
+
+    <!-- 日志文件的根目录，用系统中的绝对路径 -->
+    <property name="LOG_HOME" value="/d:/rabbitmq_demo/logs" />
+
+    <!-- 控制台打印日志配置 -->
+    <appender name="console_log" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{yyyy-MM-dd HH:mm:ss} |%highlight(%-5level) |%boldYellow(%thread) |%blue(%file:%line) |%magenta(%logger) |%cyan(%msg%n)</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 写入文件 INFO 日志配置 -->
+    <appender name="file_info_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/info/rabbitmq_demo.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 写入文件 ERROR 日志配置 -->
+    <appender name="file_error_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/error/rabbitmq_demo.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="console_log"/>
+        <!--<appender-ref ref="file_info_log"/>-->
+        <!--<appender-ref ref="file_error_log"/>-->
+    </root>
+</configuration>
