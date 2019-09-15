@@ -13,12 +13,10 @@ import java.util.concurrent.TimeoutException;
  * @Date 2019/9/14  16:04
  * @Description 发布订阅模式中的发布者
  *
- *
- *
- *
  * 1.交换器
  * (1)RabbitMQ中消息传递模型的核心思想是生产者从来不会直接把消息传送到队列,而是把消息发送到交换器(exchanges)中
  * (2)交换器的类型:direct, topic, headers and fanout
+ * (3)fanout会把消息转发给所有与该交换器绑定的队列
  *
  * 2.随机队列
  * (1)生产者与消费者必须连接的是同一个队列才能进行工作
