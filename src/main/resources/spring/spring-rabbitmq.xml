@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
+
+    <!--引入配置文件 -->
+    <context:property-placeholder location="classpath:rabbitmq.properties"/>
+
+    <!-- 定义RabbitMQ的连接工厂 -->
+    <rabbit:connection-factory id="connectionFactory"
+                               host="${rabbitmq.url}"
+                               port="${rabbitmq.port}"
+                               username="${rabbitmq.username}"
+                               password="${rabbitmq.password}"
+                               virtual-host="${rabbitmq.host}" />
+
+
+    <!-- 定义mq管理 -->
+    <rabbit:admin connection-factory="connectionFactory" />
+
+    <!-- 消息对象json转换类 -->
+    <bean id="jsonMessageConverter"
+          class="org.springframework.amqp.support.converter.Jackson2JsonMessageConverter" />
+
+    <!-- 定义模版 -->
+    <rabbit:template id="rabbitTemplate"
+                     connection-factory="connectionFactory" exchange="IExchange"
+                     message-converter="jsonMessageConverter" />
+
+
+    <!-- 定义交换机绑定队列（通配符模式） #匹配一个或多个词  *匹配一个词 -->
+    <rabbit:topic-exchange name="IExchange"
+                           id="IExchange">
+        <rabbit:bindings>
+            <rabbit:binding queue="orange" pattern="*.orange.*"/>
+            <rabbit:binding queue="lazyandrabbit" pattern="*.*.rabbit" />
+            <rabbit:binding queue="lazyandrabbit" pattern="lazy.#" />
+        </rabbit:bindings>
+    </rabbit:topic-exchange>
+
+    <!-- 声明队列 -->
+    <rabbit:queue name="orange" auto-declare="false" durable="false" exclusive="true"/>
+    <rabbit:queue name="lazyandrabbit" auto-declare="false" durable="false" exclusive="true" />
+
+
+
+    <!-- 定义消费者监听队列,manual为手动确认标识 -->
+    <bean id="mqConsumer1Service" class="com.zkq.springandrabbitmq.service.MqConsumerService1"/>
+    <bean id="mqConsumer1Service2" class="com.zkq.springandrabbitmq.service.MqConsumerService2"/>
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual">
+        <rabbit:listener ref="mqConsumer1Service" method="onMessage" queue-names="orange"/>
+        <rabbit:listener ref="mqConsumer1Service2" method="onMessage" queue-names="lazyandrabbit"/>
+    </rabbit:listener-container>
+
+</beans>

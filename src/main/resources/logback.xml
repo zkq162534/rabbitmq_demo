@@ -49,7 +49,7 @@
         </rollingPolicy>
     </appender>
 
-    <root level="DEBUG">
+    <root level="info">
         <appender-ref ref="console_log"/>
         <!--<appender-ref ref="file_info_log"/>-->
         <!--<appender-ref ref="file_error_log"/>-->
